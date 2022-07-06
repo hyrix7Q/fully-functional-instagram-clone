@@ -9,7 +9,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   addDoc,
   collection,
@@ -28,8 +28,36 @@ const Profile = ({ navigation }) => {
   const [postStatus, setPostStatus] = useState("Posts");
   const [followInfos, setFollowInfos] = useState();
   const windowWidth = Dimensions.get("window").width;
+  const ref = useRef();
+  const [index, setIndex] = useState(1);
   const user = auth.currentUser.uid;
 
+  const posties = [
+    {
+      caption: "hhh",
+      image:
+        "https://firebasestorage.googleapis.com/v0/b/instagram-2834e.appspot.com/o/DhzJbYAab9MNVDfRP4OSzkO2JIh1%2Fposts%2F96e1c0c7-b9d8-47b4-bd95-e43e6d0480d4%2F96e1c0c7-b9d8-47b4-bd95-e43e6d0480d4.jpg?alt=media&token=7e577391-45f3-4259-a9fd-c5f700de3df4",
+      likes: 0,
+      postId: "96e1c0c7-b9d8-47b4-bd95-e43e6d0480d4",
+      timestamp: {
+        nanoseconds: 343000000,
+        seconds: 1656776077,
+      },
+      userId: "DhzJbYAab9MNVDfRP4OSzkO2JIh1",
+    },
+    {
+      caption: "nnnnnnnnnn",
+      image:
+        "https://firebasestorage.googleapis.com/v0/b/instagram-2834e.appspot.com/o/DhzJbYAab9MNVDfRP4OSzkO2JIh1%2Fposts%2F96e1c0c7-b9d8-47b4-bd95-e43e6d0480d4%2F96e1c0c7-b9d8-47b4-bd95-e43e6d0480d4.jpg?alt=media&token=7e577391-45f3-4259-a9fd-c5f700de3df4",
+      likes: 0,
+      postId: "96e1c0c7-b9d8-47b4-bd95-e43e6d0480d4",
+      timestamp: {
+        nanoseconds: 343000000,
+        seconds: 1656776077,
+      },
+      userId: "DhzJbYAab9MNVDfRP4OSzkO2JIh1",
+    },
+  ];
   const onSignOut = async () => {
     signOut(auth)
       .then(() => {
@@ -61,6 +89,7 @@ const Profile = ({ navigation }) => {
         snapshot.forEach((post) => {
           Posts.push({ postId: post.id, ...post.data() });
         });
+        console.log("dsqdsqd", Posts);
         setPosts(Posts);
       }
     );
@@ -263,8 +292,10 @@ const Profile = ({ navigation }) => {
       {/* POSTS*/}
       <View style={{ marginTop: 2, flex: 1 }}>
         <FlatList
+          ref={ref}
           data={postStatus === "Posts" ? posts : tagged}
           numColumns={3}
+          keyExtractor={(item) => item.caption}
           renderItem={
             postStatus === "Posts" ? (
               (item) => (
@@ -272,6 +303,7 @@ const Profile = ({ navigation }) => {
                   style={{ marginRight: 2, marginBottom: 2 }}
                   onPress={() => {
                     navigation.navigate("Posts", {
+                      index: item.index,
                       posts: posts,
                       item: {
                         ...item.item,

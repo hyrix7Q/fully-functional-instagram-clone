@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   deleteDoc,
@@ -11,7 +17,7 @@ import {
 import { auth, db } from "../../firebase/firebaseConfig";
 
 const User = ({ user }) => {
-  const [isFollowed, setIsFollowed] = useState(false);
+  const [isFollowed, setIsFollowed] = useState();
   const [userInfo, setUserInfos] = useState();
 
   const fetchUser = async () => {
@@ -120,7 +126,9 @@ const User = ({ user }) => {
         />
         <Text style={{ fontWeight: "bold", fontSize: 16 }}>{user.user}</Text>
       </TouchableOpacity>
-      {isFollowed && auth.currentUser.uid != user.userId ? (
+      {isFollowed === undefined ? (
+        <ActivityIndicator size="small" color="grey" />
+      ) : isFollowed && auth.currentUser.uid != user.userId ? (
         <TouchableOpacity
           onPress={() => {
             onUnFollow();

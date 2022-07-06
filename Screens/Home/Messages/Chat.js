@@ -7,6 +7,7 @@ import {
   ScrollView,
   Keyboard,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useLayoutEffect, useEffect } from "react";
 import {
@@ -31,7 +32,7 @@ const Chat = ({ route, navigation }) => {
   const [messages, setMessages] = useState();
   const [userInfos, setUserInfos] = useState();
   const [isSeen, setIsSeen] = useState();
-  const [isFollowed, setIsFollowed] = useState(false);
+  const [isFollowed, setIsFollowed] = useState();
   const [allowed, setAllowed] = useState();
 
   const { item } = route.params;
@@ -586,7 +587,7 @@ const Chat = ({ route, navigation }) => {
                 )
               )}
             </>
-          ) : (
+          ) : messages.length === 0 ? (
             <View>
               <View style={{ alignItems: "center", marginTop: 20 }}>
                 <Image
@@ -625,143 +626,153 @@ const Chat = ({ route, navigation }) => {
                 </Text>
               </TouchableOpacity>
             </View>
-          )}
+          ) : null}
         </ScrollView>
       </View>
-      {!allowed && (
-        <View
-          style={{
-            paddingTop: 30,
-            alignItems: "center",
-            paddingBottom: 30,
-            backgroundColor: "#E9E9E9",
-          }}
-        >
-          <View style={{ alignItems: "center" }}>
-            <Text style={{ fontSize: 17, paddingHorizontal: 30 }}>
-              Accept message request from{" "}
-              <Text style={{ fontSize: 17, fontWeight: "bold" }}>
-                {userInfos?.username} ?
-              </Text>
-            </Text>
-            <Text
+      {allowed === undefined
+        ? null
+        : !allowed && (
+            <View
               style={{
-                fontSize: 15,
-                marginTop: 10,
-                color: "grey",
-                textAlign: "center",
-                paddingHorizontal: 20,
+                paddingTop: 30,
+                alignItems: "center",
+                paddingBottom: 30,
+                backgroundColor: "#E9E9E9",
               }}
             >
-              if you accept they will also be able to video chat with you and
-              see info such as your Activity status and when you've seen
-              messages
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              marginTop: 40,
-              width: "100%",
-              justifyContent: "space-evenly",
-            }}
-          >
-            <TouchableOpacity onPress={requestDelete}>
-              <Text style={{ color: "red", fontSize: 21, fontWeight: "bold" }}>
-                Delete
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={requestAccept}>
-              <Text style={{ fontSize: 21, fontWeight: "bold" }}>Accept</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-      {allowed && (
-        <View
-          style={{
-            paddingHorizontal: 25,
-            alignItems: "center",
-            flexDirection: "row",
-            position: "absolute",
-            bottom: 0,
-            maxHeight: 200,
-            paddingVertical: 10,
-            backgroundColor: "#EBEBEB",
-            width: "100%",
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("ChatImage", {
-                infos: {
-                  userId: item?.userId,
-                  picture: userInfos?.profilePic,
-                  private: userInfos?.private,
-                  method: "camera",
-                },
-              });
-            }}
-          >
-            <Image
-              source={require("../../../assets/chatCamera.png")}
-              style={{ height: 35, width: 35 }}
-            />
-          </TouchableOpacity>
-          <View style={{ flexGrow: 1, maxWidth: 200, marginHorizontal: 10 }}>
-            <TextInput
-              placeholder="Message..."
-              multiline
-              style={{ fontSize: 18 }}
-              onChangeText={(text) => {
-                setMessage(text);
-              }}
-              onSubmitEditing={() => {
-                sendMessage();
-              }}
-            />
-          </View>
-          {message === "" ? (
-            <View style={{ flexDirection: "row", marginLeft: 20 }}>
-              <TouchableOpacity style={{ marginRight: 15 }}>
-                <Image
-                  source={require("../../../assets/mic.png")}
-                  style={{ height: 35, width: 35 }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate("ChatImage", {
-                    infos: {
-                      userId: item?.userId,
-                      picture: userInfos?.profilePic,
-                      private: userInfos?.private,
-                      method: "library",
-                    },
-                  });
+              <View style={{ alignItems: "center" }}>
+                <Text style={{ fontSize: 17, paddingHorizontal: 30 }}>
+                  Accept message request from{" "}
+                  <Text style={{ fontSize: 17, fontWeight: "bold" }}>
+                    {userInfos?.username} ?
+                  </Text>
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    marginTop: 10,
+                    color: "grey",
+                    textAlign: "center",
+                    paddingHorizontal: 20,
+                  }}
+                >
+                  if you accept they will also be able to video chat with you
+                  and see info such as your Activity status and when you've seen
+                  messages
+                </Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 40,
+                  width: "100%",
+                  justifyContent: "space-evenly",
                 }}
               >
-                <Image
-                  source={require("../../../assets/imageLibrary.png")}
-                  style={{ height: 35, width: 35 }}
-                />
-              </TouchableOpacity>
+                <TouchableOpacity onPress={requestDelete}>
+                  <Text
+                    style={{ color: "red", fontSize: 21, fontWeight: "bold" }}
+                  >
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={requestAccept}>
+                  <Text style={{ fontSize: 21, fontWeight: "bold" }}>
+                    Accept
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          ) : (
+          )}
+      {allowed === undefined ? (
+        <ActivityIndicator size="small" color="grey" />
+      ) : (
+        allowed && (
+          <View
+            style={{
+              paddingHorizontal: 25,
+              alignItems: "center",
+              flexDirection: "row",
+              position: "absolute",
+              bottom: 0,
+              maxHeight: 200,
+              paddingVertical: 10,
+              backgroundColor: "#EBEBEB",
+              width: "100%",
+            }}
+          >
             <TouchableOpacity
-              style={{ marginLeft: 20 }}
               onPress={() => {
-                sendMessage();
+                navigation.navigate("ChatImage", {
+                  infos: {
+                    userId: item?.userId,
+                    picture: userInfos?.profilePic,
+                    private: userInfos?.private,
+                    method: "camera",
+                  },
+                });
               }}
             >
-              <Text
-                style={{ color: "#80d3fc", fontSize: 20, fontWeight: "bold" }}
-              >
-                Send
-              </Text>
+              <Image
+                source={require("../../../assets/chatCamera.png")}
+                style={{ height: 35, width: 35 }}
+              />
             </TouchableOpacity>
-          )}
-        </View>
+            <View style={{ flexGrow: 1, maxWidth: 200, marginHorizontal: 10 }}>
+              <TextInput
+                placeholder="Message..."
+                multiline
+                style={{ fontSize: 18 }}
+                onChangeText={(text) => {
+                  setMessage(text);
+                }}
+                onSubmitEditing={() => {
+                  sendMessage();
+                }}
+              />
+            </View>
+            {message === "" ? (
+              <View style={{ flexDirection: "row", marginLeft: 20 }}>
+                <TouchableOpacity style={{ marginRight: 15 }}>
+                  <Image
+                    source={require("../../../assets/mic.png")}
+                    style={{ height: 35, width: 35 }}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate("ChatImage", {
+                      infos: {
+                        userId: item?.userId,
+                        picture: userInfos?.profilePic,
+                        private: userInfos?.private,
+                        method: "library",
+                      },
+                    });
+                  }}
+                >
+                  <Image
+                    source={require("../../../assets/imageLibrary.png")}
+                    style={{ height: 35, width: 35 }}
+                  />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={{ marginLeft: 20 }}
+                onPress={() => {
+                  sendMessage();
+                }}
+              >
+                <Text
+                  style={{ color: "#80d3fc", fontSize: 20, fontWeight: "bold" }}
+                >
+                  Send
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )
       )}
     </ScrollView>
   );

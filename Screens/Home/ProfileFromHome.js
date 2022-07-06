@@ -8,6 +8,7 @@ import {
   Modal,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
@@ -502,6 +503,7 @@ const ProfileFromHome = ({ navigation, route }) => {
                     style={{ marginRight: 2, marginBottom: 2 }}
                     onPress={() => {
                       navigation.navigate("Posts", {
+                        index: item.index,
                         posts: posts,
                         item: {
                           ...item.item,

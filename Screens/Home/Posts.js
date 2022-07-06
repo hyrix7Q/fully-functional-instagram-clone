@@ -5,9 +5,10 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
+  FlatList,
   StyleSheet,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Post from "../../components/Home/Post";
 import {
   deleteDoc,
@@ -19,7 +20,7 @@ import {
 import { auth, db } from "../../firebase/firebaseConfig";
 
 const Posts = ({ route, navigation }) => {
-  const { item, posts } = route.params;
+  const { item, posts, index } = route.params;
   const [modalVisible, setModalVisible] = useState(false);
   const [postsToShow, setPosts] = useState();
 
@@ -63,6 +64,8 @@ const Posts = ({ route, navigation }) => {
       navigation.goBack();
     });
   };
+  const ref = useRef();
+
   return (
     <View
       style={{
@@ -104,7 +107,23 @@ const Posts = ({ route, navigation }) => {
         <View></View>
       </View>
 
-      <ScrollView contentContainerStyle={{}}>
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={posts}
+          initialScrollIndex={index}
+          renderItem={(post) => (
+            <View style={{ flex: 1 }}>
+              <Post
+                item={{ ...post.item, user: item.user }}
+                navigation={navigation}
+                stateChange={stateChange}
+                infos={{ from: "fromProfile", id: null }}
+              />
+            </View>
+          )}
+        />
+      </View>
+      {/*<ScrollView contentContainerStyle={{}}>
         {postsToShow?.map((post, index) => (
           <View key={index} style={{ flex: 1 }}>
             <Post
@@ -115,7 +134,7 @@ const Posts = ({ route, navigation }) => {
             />
           </View>
         ))}
-      </ScrollView>
+        </ScrollView>*/}
 
       <Modal
         animationType="slide"

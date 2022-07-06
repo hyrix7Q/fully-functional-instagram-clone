@@ -6,7 +6,7 @@ import {
   FlatList,
   Animated,
 } from "react-native";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import User from "../User";
 import Followers from "./Followers";
 import Following from "./Following";
@@ -15,6 +15,8 @@ const FollowInfos = ({ route, navigation }) => {
   const { id, profilePic, infos, username } = route.params;
   const [info, setInfo] = useState(infos);
   const scrollX = useRef(new Animated.Value(0)).current;
+  const followingRef = useRef();
+  const [index, setIndex] = useState(infos === "following" ? 1 : 0);
 
   const slides = [
     {
@@ -70,7 +72,9 @@ const FollowInfos = ({ route, navigation }) => {
               <Following id={id} profilePic={profilePic} />
             )
           }
+          showsHorizontalScrollIndicator={false}
           horizontal
+          initialScrollIndex={index}
           pagingEnabled
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { x: scrollX } } }],

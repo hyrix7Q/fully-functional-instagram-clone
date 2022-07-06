@@ -31,7 +31,7 @@ const Following = ({ id, profilePic }) => {
       <View style={{ alignSelf: "center" }}>
         <Text>Following</Text>
       </View>
-      <ScrollView>
+      <ScrollView >
         {following?.map((following, index) => (
           <User
             key={index}
