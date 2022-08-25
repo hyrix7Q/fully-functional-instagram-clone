@@ -9,7 +9,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import {
   addDoc,
   collection,
@@ -28,10 +28,20 @@ const Profile = ({ navigation }) => {
   const [postStatus, setPostStatus] = useState("Posts");
   const [followInfos, setFollowInfos] = useState();
   const windowWidth = Dimensions.get("window").width;
+  const [isPortrait, setIsPortrait] = useState(true);
   const ref = useRef();
   const [index, setIndex] = useState(1);
   const user = auth.currentUser.uid;
 
+  // useLayoutEffect(() => {
+  //   const dim = Dimensions.get("screen");
+  //   if (dim.height > dim.width) {
+  //     setIsPortrait(true);
+  //   } else {
+  //     setIsPortrait(false);
+  //   }
+  // }, []);
+  console.log("MOOODE", isPortrait);
   const posties = [
     {
       caption: "hhh",
@@ -127,242 +137,256 @@ const Profile = ({ navigation }) => {
     <View style={{ flex: 1, marginTop: "5%" }}>
       <View
         style={{
-          flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-between",
         }}
       >
-        <TouchableOpacity onPress={() => {}}>
-          <Image
-            source={require("../../assets/leftArrow.png")}
-            style={{ height: 25, height: 25 }}
-          />
-        </TouchableOpacity>
         <TouchableOpacity
-          style={{ justifyContent: "center", marginRight: 60 }}
+          style={{
+            justifyContent: "center",
+          }}
           onPress={() => setModalVisible(!modalVisible)}
         >
           <Text style={{ fontSize: 17.5, fontWeight: "bold" }}>
             {userInfo?.username}
           </Text>
         </TouchableOpacity>
-        <View></View>
       </View>
 
       {/* Profile Pic / following/followers/posts */}
       <View
-        style={{ flexDirection: "row", alignItems: "center", marginTop: 20 }}
-      >
-        <View
-          style={{
-            position: "relative",
-            marginLeft: 10,
-            marginRight: 50,
-          }}
-        >
-          <Image
-            source={{ uri: userInfo?.profilePic }}
-            style={{ height: 80, width: 80, borderRadius: 40 }}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("AddStory");
-            }}
-            style={{ position: "absolute", bottom: -10, right: -5 }}
-          >
-            <Image
-              source={require("../../assets/plus.png")}
-              style={{ height: 30, width: 30 }}
-            />
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: "60%",
-          }}
-        >
-          <View style={{ alignItems: "center" }}>
-            <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-              {posts?.length}
-            </Text>
-            <Text>Posts</Text>
-          </View>
-          <View style={{ alignItems: "center" }}>
-            {followInfos ? (
-              <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                {followInfos[0]?.following}
-              </Text>
-            ) : (
-              <ActivityIndicator size="small" color="grey" />
-            )}
-            <Text>Followers</Text>
-          </View>
-          <View style={{ alignItems: "center" }}>
-            {followInfos ? (
-              <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                {followInfos[1]?.followers}
-              </Text>
-            ) : (
-              <ActivityIndicator size="small" color="grey" />
-            )}
-            <Text>Following</Text>
-          </View>
-        </View>
-      </View>
-
-      {/*BIO*/}
-      <View
         style={{
-          paddingHorizontal: 20,
-          marginTop: 20,
+          flex: 1,
 
-          maxHeight: 150,
+          flexDirection: isPortrait ? null : "row",
         }}
       >
-        <Text style={{ fontSize: 16 }}>
-          Blinded by the light ... fake followers
-        </Text>
-      </View>
-      {user === auth.currentUser.uid && (
-        <View style={{ width: "100%", marginTop: 20 }}>
-          <TouchableOpacity
+        <View style={{ width: isPortrait ? null : "35%" }}>
+          <View
             style={{
-              paddingVertical: 4,
-              borderRadius: 5,
-              alignSelf: "center",
-              width: 350,
-              borderColor: "grey",
-              borderWidth: 1,
+              flexDirection: isPortrait ? "row" : "column",
               alignItems: "center",
-            }}
-            onPress={() => {
-              navigation.navigate("EditProfile", {
-                userInfos: userInfo,
-              });
+              marginTop: 20,
+              width: "100%",
             }}
           >
-            <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-              Edit Profile
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      <View
-        style={{
-          flexDirection: "row",
-          width: "100%",
-          marginTop: 10,
-        }}
-      >
-        <TouchableOpacity
-          style={[
-            { alignItems: "center", width: "50%", paddingVertical: 6 },
-            postStatus === "Posts"
-              ? { borderBottomColor: "black", borderBottomWidth: 1 }
-              : null,
-          ]}
-          onPress={() => {
-            setPostStatus("Posts");
-          }}
-        >
-          <Image
-            source={require("../../assets/matrix.png")}
-            style={{ height: 30, width: 30 }}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            { alignItems: "center", width: "50%", paddingVertical: 6 },
-            postStatus === "Tagged"
-              ? { borderBottomColor: "black", borderBottomWidth: 1 }
-              : null,
-          ]}
-          onPress={() => {
-            setPostStatus("Tagged");
-          }}
-        >
-          <Image
-            source={require("../../assets/tagged.png")}
-            style={{ height: 32, width: 32 }}
-          />
-        </TouchableOpacity>
-      </View>
-      {/* POSTS*/}
-      <View style={{ marginTop: 2, flex: 1 }}>
-        <FlatList
-          ref={ref}
-          data={postStatus === "Posts" ? posts : tagged}
-          numColumns={3}
-          keyExtractor={(item) => item.caption}
-          renderItem={
-            postStatus === "Posts" ? (
-              (item) => (
-                <TouchableOpacity
-                  style={{ marginRight: 2, marginBottom: 2 }}
-                  onPress={() => {
-                    navigation.navigate("Posts", {
-                      index: item.index,
-                      posts: posts,
-                      item: {
-                        ...item.item,
-                        user: auth.currentUser.displayName,
-                        profilePic: auth.currentUser.photoURL,
-                      },
-                    });
-                  }}
-                >
-                  <Image
-                    source={{ uri: item.item.image }}
-                    style={{
-                      height: windowWidth / 3.05,
-                      width: windowWidth / 3.05,
-                    }}
-                  />
-                </TouchableOpacity>
-              )
-            ) : (
-              <View>
-                <Text>No Tagged Posts</Text>
-              </View>
-            )
-          }
-        />
-      </View>
-      <View style={{ marginTop: "auto", backgroundColor: "red" }}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <View style={{ width: "80%" }}>
-                <Text style={styles.modalText}>
-                  Keep up with a smaller group of friends
-                </Text>
-                <Text style={styles.modalSubText}>
-                  Create another account to stay in touch with group of your
-                  friends
-                </Text>
-              </View>
+            <View
+              style={{
+                position: "relative",
+                marginLeft: 10,
+                marginRight: 50,
+                marginBottom: isPortrait ? null : 30,
+              }}
+            >
+              <Image
+                source={{ uri: userInfo?.profilePic }}
+                style={{ height: 80, width: 80, borderRadius: 40 }}
+              />
               <TouchableOpacity
-                style={[styles.button, styles.buttonClose]}
                 onPress={() => {
-                  setModalVisible(!modalVisible);
-                  onSignOut();
+                  navigation.navigate("AddStory");
                 }}
+                style={{ position: "absolute", bottom: -10, right: -5 }}
               >
-                <Text style={styles.textStyle}>Try a New Account</Text>
+                <Image
+                  source={require("../../assets/plus.png")}
+                  style={{ height: 30, width: 30 }}
+                />
               </TouchableOpacity>
             </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+
+                width: "60%",
+              }}
+            >
+              <View style={{ alignItems: "center" }}>
+                <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                  {posts?.length}
+                </Text>
+                <Text>Posts</Text>
+              </View>
+              <View style={{ alignItems: "center" }}>
+                {followInfos ? (
+                  <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                    {followInfos[0]?.following}
+                  </Text>
+                ) : (
+                  <ActivityIndicator size="small" color="grey" />
+                )}
+                <Text>Followers</Text>
+              </View>
+              <View style={{ alignItems: "center" }}>
+                {followInfos ? (
+                  <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                    {followInfos[1]?.followers}
+                  </Text>
+                ) : (
+                  <ActivityIndicator size="small" color="grey" />
+                )}
+                <Text>Following</Text>
+              </View>
+            </View>
           </View>
-        </Modal>
+
+          {/*BIO*/}
+          <View
+            style={{
+              paddingHorizontal: 20,
+              marginTop: 20,
+
+              maxHeight: 150,
+            }}
+            H
+          >
+            <Text style={{ fontSize: 16 }}>{userInfo.bio}</Text>
+          </View>
+          {user === auth.currentUser.uid && (
+            <View style={{ marginTop: 20 }}>
+              <TouchableOpacity
+                style={{
+                  paddingVertical: 4,
+                  borderRadius: 5,
+                  alignSelf: "center",
+                  width: isPortrait ? 350 : 150,
+                  borderColor: "grey",
+                  borderWidth: 1,
+                  alignItems: "center",
+                }}
+                onPress={() => {
+                  navigation.navigate("EditProfile", {
+                    userInfos: userInfo,
+                  });
+                }}
+              >
+                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                  Edit Profile
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {/* POSTS*/}
+        <View style={{ marginTop: 2, flex: 1 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              marginTop: 10,
+            }}
+          >
+            <TouchableOpacity
+              style={[
+                { alignItems: "center", width: "50%", paddingVertical: 6 },
+                postStatus === "Posts"
+                  ? { borderBottomColor: "black", borderBottomWidth: 1 }
+                  : null,
+              ]}
+              onPress={() => {
+                setPostStatus("Posts");
+              }}
+            >
+              <Image
+                source={require("../../assets/matrix.png")}
+                style={{ height: 30, width: 30 }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                { alignItems: "center", width: "50%", paddingVertical: 6 },
+                postStatus === "Tagged"
+                  ? { borderBottomColor: "black", borderBottomWidth: 1 }
+                  : null,
+              ]}
+              onPress={() => {
+                setPostStatus("Tagged");
+              }}
+            >
+              <Image
+                source={require("../../assets/tagged.png")}
+                style={{ height: 32, width: 32 }}
+              />
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            ref={ref}
+            data={postStatus === "Posts" ? posts : tagged}
+            numColumns={3}
+            keyExtractor={(item) => item.caption}
+            renderItem={
+              postStatus === "Posts" ? (
+                (item) => (
+                  <TouchableOpacity
+                    style={{ marginRight: 2, marginBottom: 2 }}
+                    onPress={() => {
+                      navigation.navigate("Posts", {
+                        index: item.index,
+                        posts: posts,
+                        item: {
+                          ...item.item,
+                          user: auth.currentUser.displayName,
+                          profilePic: auth.currentUser.photoURL,
+                        },
+                      });
+                    }}
+                  >
+                    <Image
+                      source={{ uri: item.item.image }}
+                      style={{
+                        height: isPortrait
+                          ? windowWidth / 3.05
+                          : windowWidth / 4.65,
+                        width: isPortrait
+                          ? windowWidth / 3.05
+                          : windowWidth / 4.65,
+                      }}
+                    />
+                  </TouchableOpacity>
+                )
+              ) : (
+                <View>
+                  <Text>No Tagged Posts</Text>
+                </View>
+              )
+            }
+          />
+        </View>
+        <View style={{ marginTop: "auto", backgroundColor: "red" }}>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              Alert.alert("Modal has been closed.");
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <View style={{ width: "80%" }}>
+                  <Text style={styles.modalText}>
+                    Keep up with a smaller group of friends
+                  </Text>
+                  <Text style={styles.modalSubText}>
+                    Create another account to stay in touch with group of your
+                    friends
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                    onSignOut();
+                  }}
+                >
+                  <Text style={styles.textStyle}>Try a New Account</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </View>
       </View>
     </View>
   );

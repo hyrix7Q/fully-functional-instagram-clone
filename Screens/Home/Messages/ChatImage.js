@@ -1,4 +1,10 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import uuid from "react-native-uuid";
@@ -17,6 +23,7 @@ import {
 const ChatImage = ({ route, navigation }) => {
   const [imagePicked, setImagePicked] = useState();
   const [isFollowed, setIsFollowed] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const { infos } = route.params;
   console.log("dddd", infos);
@@ -72,6 +79,7 @@ const ChatImage = ({ route, navigation }) => {
   }, []);
 
   const sendImage = async () => {
+    setIsSending(true);
     const idGenerated = uuid.v4();
 
     const img = await fetch(imagePicked);
@@ -288,6 +296,8 @@ const ChatImage = ({ route, navigation }) => {
           });
         })
         .then(() => {
+          setIsSending(false);
+
           navigation.goBack();
         });
     });
@@ -331,9 +341,15 @@ const ChatImage = ({ route, navigation }) => {
                 marginRight: 5,
               }}
             />
-            <Text style={{ color: "black", fontSize: 16, fontWeight: "bold" }}>
-              Send
-            </Text>
+            {!isSending ? (
+              <Text
+                style={{ color: "black", fontSize: 16, fontWeight: "bold" }}
+              >
+                Send
+              </Text>
+            ) : (
+              <ActivityIndicator size="small" color="black" />
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             style={{ position: "absolute" }}

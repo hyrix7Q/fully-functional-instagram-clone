@@ -8,6 +8,7 @@ import {
   ScrollView,
   Switch,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect } from "react";
 import { useState } from "react";
@@ -28,8 +29,12 @@ import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 const EditProfile = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [privacy, setPrivacy] = useState();
-
-  const { userInfos } = route.params;
+  const [username, setUsername] = useState("");
+  const [usernames, setUsernames] = useState([]);
+  const [usernameAvailable, setUsernameAvailable] = useState(true);
+  const [bio, setBio] = useState("");
+  const [bioBefore, setBioBefore] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const idGenerated = uuid.v4();
   const [imagePicked, setImagePicked] = useState();
   const [picUrl, setPicUrl] = useState();
@@ -60,38 +65,75 @@ const EditProfile = ({ route, navigation }) => {
     }
   };
 
+  //Using this useEffect to fetch all the usernames to check if the username that the current user is entering already exists
+  useEffect(() => {
+    const fetchUsernames = async () => {
+      const Ref = collection(db, "users");
+      const snapshot = await getDocs(Ref);
+      const usernames = [];
+      snapshot.forEach((doc) => {
+        usernames.push(doc.data().username);
+      });
+      return usernames;
+    };
+
+    fetchUsernames()
+      .then((res) => {
+        console.log("Usernames", res);
+        if (res.length === 0) {
+          setUsernames([]);
+        } else {
+          setUsernames(res);
+        }
+
+        setUsername(auth.currentUser.displayName);
+      })
+      .then(async () => {
+        const docRef = doc(db, "users", auth.currentUser.uid);
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+          setBio(snapshot.data().bio);
+          setBioBefore(snapshot.data().bio);
+        }
+      });
+  }, []);
+
+  const changeUsername = async () => {
+    const docRef = doc(db, "users", auth.currentUser.uid);
+    await updateDoc(docRef, {
+      username: username,
+    });
+    await updateProfile(auth.currentUser, {
+      displayName: username,
+    });
+  };
+
   const postProfilePic = async () => {
-    if (!imagePicked) {
-      navigation.goBack();
-    } else {
+    if (imagePicked) {
       const img = await fetch(imagePicked);
       const bytes = await img.blob();
 
       uploadBytes(
         ref(storage, `${auth.currentUser.uid}/profilePic/${idGenerated}.jpg`),
         bytes
-      )
-        .then(() => {
-          listAll(ref(storage, `${auth.currentUser.uid}/profilePic`)).then(
-            (res) => {
-              res.items.forEach((item) => {
-                getDownloadURL(item).then((url) => {
-                  setPicUrl(url);
-                  updateDoc(doc(db, "users", auth.currentUser.uid), {
-                    profilePic: url,
-                  }).then(() => {
-                    updateProfile(auth.currentUser, {
-                      photoURL: url,
-                    });
+      ).then(() => {
+        listAll(ref(storage, `${auth.currentUser.uid}/profilePic`)).then(
+          (res) => {
+            res.items.forEach((item) => {
+              getDownloadURL(item).then((url) => {
+                setPicUrl(url);
+                updateDoc(doc(db, "users", auth.currentUser.uid), {
+                  profilePic: url,
+                }).then(() => {
+                  updateProfile(auth.currentUser, {
+                    photoURL: url,
                   });
                 });
               });
-            }
-          );
-        })
-        .then(() => {
-          navigation.goBack();
-        });
+            });
+          }
+        );
+      });
     }
   };
 
@@ -203,12 +245,39 @@ const EditProfile = ({ route, navigation }) => {
           Cancel
         </Text>
         <Text style={{ fontSize: 18, fontWeight: "bold" }}>Edit Profile</Text>
-        <Text
-          style={{ color: "#64A6FF", fontSize: 18, fontWeight: "bold" }}
-          onPress={postProfilePic}
-        >
-          Done
-        </Text>
+        {!isLoading ? (
+          <Text
+            style={{
+              color: usernameAvailable ? "#64A6FF" : "black",
+              fontSize: 18,
+              fontWeight: "bold",
+            }}
+            onPress={async () => {
+              // to check if something has changed
+              if (
+                (usernameAvailable && imagePicked) ||
+                (usernameAvailable && bio != bioBefore)
+              ) {
+                setIsLoading(true);
+                await postProfilePic();
+                if (username != auth.currentUser.displayName) {
+                  await changeUsername();
+                }
+                if (bio != bioBefore) {
+                  await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                    bio: bio,
+                  });
+                }
+                navigation.goBack();
+                setIsLoading(false);
+              }
+            }}
+          >
+            Done
+          </Text>
+        ) : (
+          <ActivityIndicator size="small" color="#64A6FF" />
+        )}
       </View>
       <View
         style={{
@@ -290,11 +359,29 @@ const EditProfile = ({ route, navigation }) => {
               style={{
                 fontSize: 20,
               }}
+              onChangeText={(username) => {
+                setUsername(username);
+                // if the function returns TRUE then username is not Taken
+                if (usernames.length === 0) {
+                  setUsernameAvailable(true);
+                } else if (usernames.includes(username)) {
+                  setUsernameAvailable(false);
+                } else {
+                  setUsernameAvailable(true);
+                }
+              }}
+              value={username}
             />
+            {!usernameAvailable && username != auth.currentUser.displayName && (
+              <Text style={{ color: "red" }}>
+                Username already taken , try another one!
+              </Text>
+            )}
           </View>
         </View>
+
         <View style={{ flexDirection: "row", marginBottom: 12 }}>
-          <View style={{ maxWidth: 100, width: 100, marginRight: 7 }}>
+          <View style={{ maxWidth: "25.5%", width: "30%", marginRight: 7 }}>
             <Text style={{ fontSize: 20 }}>Bio</Text>
           </View>
           <View
@@ -303,12 +390,22 @@ const EditProfile = ({ route, navigation }) => {
               borderBottomColor: "grey",
               borderBottomWidth: 0.45,
               paddingBottom: 7,
+
+              maxWidth: "70%",
+              maxHeight: 100,
             }}
           >
             <TextInput
               placeholder="Bio"
               style={{
                 fontSize: 20,
+                maxWidth: "100%",
+              }}
+              maxLength={300}
+              multiline
+              value={bio}
+              onChangeText={(text) => {
+                setBio(text);
               }}
             />
           </View>

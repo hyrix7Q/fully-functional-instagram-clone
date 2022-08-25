@@ -251,12 +251,12 @@ const Post = ({ item, infos, navigation, route, stateChange }) => {
         </TouchableOpacity>
       </View>
       {/* POST PIC */}
-      <View style={{ width: "100%", marginTop: 10 }}>
+      <TouchableOpacity style={{ width: "100%", marginTop: 10 }}>
         <Image
           source={{ uri: item.image }}
           style={{ width: "100%", height: 450 }}
         />
-      </View>
+      </TouchableOpacity>
 
       {/* ICONS */}
       <View style={{ marginTop: 9, paddingLeft: 11, flexDirection: "row" }}>

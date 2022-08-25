@@ -319,9 +319,7 @@ const ProfileFromHome = ({ navigation, route }) => {
           maxHeight: 150,
         }}
       >
-        <Text style={{ fontSize: 16 }}>
-          Blinded by the light ... fake followers
-        </Text>
+        <Text style={{ fontSize: 16 }}>{userInfo?.bio}</Text>
       </View>
 
       {item.userId != auth.currentUser.uid ? (

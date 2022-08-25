@@ -104,7 +104,7 @@ const Chat = ({ route, navigation }) => {
           querySnapshot.forEach((doc) => {
             msg.push({ id: doc.id, data: doc.data() });
           });
-
+          console.log("THIS msgs", querySnapshot.docs.length);
           setMessages(msg);
         }
       );
@@ -511,7 +511,7 @@ const Chat = ({ route, navigation }) => {
                         <Text style={styles.senderText}>
                           {data.data.message}
                         </Text>
-                        {messages[messages.length - 1].data.message ===
+                        {messages[messages?.length - 1]?.data.message ===
                           data.data.message &&
                           isSeen && (
                             <Text
@@ -587,7 +587,7 @@ const Chat = ({ route, navigation }) => {
                 )
               )}
             </>
-          ) : messages.length === 0 ? (
+          ) : messages?.length === 0 ? (
             <View>
               <View style={{ alignItems: "center", marginTop: 20 }}>
                 <Image

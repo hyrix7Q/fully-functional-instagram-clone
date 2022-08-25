@@ -11,11 +11,15 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import Post from "../../components/Home/Post";
 import {
+  collection,
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
+  query,
   serverTimestamp,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase/firebaseConfig";
 
@@ -40,9 +44,28 @@ const Posts = ({ route, navigation }) => {
   const onDelete = async () => {
     const docRef = doc(db, "users", auth.currentUser.uid, "posts", postId);
 
-    await deleteDoc(docRef).then(() => {
-      navigation.goBack();
-    });
+    await deleteDoc(docRef)
+      .then(async () => {
+        const collRef = collection(
+          db,
+          "users",
+          auth.currentUser.uid,
+          "notifications"
+        );
+        const q = query(collRef, where("postId", "==", postId));
+        const snapshot = await getDocs(q);
+        await Promise.all(
+          snapshot.docs.map(async (notif) => {
+            console.log("IDDDdddDd", notif.id, typeof notif.id);
+            await deleteDoc(
+              doc(db, "users", auth.currentUser.uid, "notifications", notif.id)
+            );
+          })
+        );
+      })
+      .then(() => {
+        navigation.goBack();
+      });
   };
 
   const toArchive = async () => {

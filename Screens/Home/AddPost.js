@@ -74,7 +74,13 @@ const AddPost = ({ navigation }) => {
           borderColor: "grey",
         }}
       >
-        <Image source={require("../../assets/cross.png")} />
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <Image source={require("../../assets/cross.png")} />
+        </TouchableOpacity>
         <Text style={{ color: "white", fontSize: 18, fontWeight: "bold" }}>
           New post
         </Text>

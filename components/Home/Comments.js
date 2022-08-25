@@ -16,6 +16,7 @@ import {
   doc,
   getDoc,
   onSnapshot,
+  orderBy,
   query,
   QuerySnapshot,
   serverTimestamp,
@@ -30,6 +31,7 @@ const Comments = ({ route, navigation }) => {
   const [Comments, setComments] = useState();
   const [reply, setReply] = useState(false);
   const [replyTo, setReplyTo] = useState("");
+  const [fetch, setFetch] = useState();
   const userInfos = useSelector((state) => state.userInfos.infos);
   const [commentId, setCommentId] = useState("");
   const { item } = route.params;
@@ -51,6 +53,7 @@ const Comments = ({ route, navigation }) => {
         comment: userComment,
         likes: [],
         replies: [],
+        timestamp: serverTimestamp(),
       }
     );
     return commentAdded;
@@ -90,12 +93,17 @@ const Comments = ({ route, navigation }) => {
       {
         replyId: addedReply.id,
       }
-    );
+    ).then(() => {
+      setReply(false);
+    });
   };
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      collection(db, "users", item.userId, "posts", item.postId, "comments"),
+      query(
+        collection(db, "users", item.userId, "posts", item.postId, "comments"),
+        orderBy("timestamp", "asc")
+      ),
       (doc) => {
         let comments = [];
         doc.forEach((com) => {
@@ -187,6 +195,8 @@ const Comments = ({ route, navigation }) => {
               comment={comment}
               item={item}
               key={index}
+              fetch={fetch}
+              setFetch={setFetch}
               fun={func}
               postId={item.postId}
             />
@@ -286,8 +296,12 @@ const Comments = ({ route, navigation }) => {
                             commentId: res.id,
                             userId: item.userId,
                           }
-                        );
+                        ).then(() => {
+                          setUserComment("");
+                        });
                       }
+
+                      setFetch(new Date());
                     });
               }}
             >

@@ -18,11 +18,15 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../../firebase/firebaseConfig";
 import { useSelector } from "react-redux";
+import Reply from "./reply";
+import Modal from "react-native-modal";
 
-const Comment = ({ comment, item, reply, setReply, fun, postId }) => {
+const Comment = ({ comment, fetch, item, reply, setReply, fun, postId }) => {
   const [showReplies, setShowReplies] = useState(false);
   const userInfos = useSelector((state) => state.userInfos.infos);
   const [liked, setLiked] = useState();
+  const [repliesLength, setRepliesLength] = useState();
+  const [modalVisibility, setModalVisibility] = useState(false);
   const [replies, setReplies] = useState();
   const [replyLiked, setReplyLiked] = useState();
   const [replyLikesFetched, setReplyLikesFetched] = useState(false);
@@ -80,14 +84,14 @@ const Comment = ({ comment, item, reply, setReply, fun, postId }) => {
       (doc) => {
         let replies = [];
         doc.forEach((com) => {
-          replies.push({ ...com.data() });
+          replies.push({ commntId: comment.commentId, ...com.data() });
         });
         console.log("repliess", replies);
         setReplies(replies);
       }
     );
     return unsubscribe;
-  }, []);
+  }, [fetch]);
 
   const likeComment = async () => {
     console.log(comment.userId, postId, comment.commentId);
@@ -326,6 +330,19 @@ const Comment = ({ comment, item, reply, setReply, fun, postId }) => {
     });
   }, []);
 
+  const deleteComment = async () => {
+    const docRef = doc(
+      db,
+      "users",
+      comment.postUser,
+      "posts",
+      postId,
+      "comments",
+      comment.commentId
+    );
+    await deleteDoc(docRef);
+  };
+
   return (
     <View>
       <View
@@ -347,7 +364,60 @@ const Comment = ({ comment, item, reply, setReply, fun, postId }) => {
             }}
           />
         </View>
-        <View style={{ width: "100%", maxWidth: "90%" }}>
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <Modal
+            isVisible={modalVisibility}
+            backdropColor="black"
+            backdropOpacity={0.6}
+            onBackdropPress={() => {
+              setModalVisibility(false);
+            }}
+            style={{ alignSelf: "center" }}
+          >
+            <View
+              style={{
+                width: 200,
+
+                backgroundColor: "white",
+                alignItems: "center",
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  paddingBottom: 10,
+                  paddingTop: 5,
+                  borderBottomColor: "grey",
+                  borderBottomWidth: 0.4,
+                }}
+                onPress={() => {
+                  deleteComment().then(() => {
+                    setModalVisibility(false);
+                  });
+                }}
+              >
+                <Text style={{ color: "black", fontSize: 19 }}>
+                  Delete Comment
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ paddingTop: 10, paddingBottom: 5 }}
+                onPress={() => {
+                  setModalVisibility(false);
+                }}
+              >
+                <Text style={{ color: "red", fontSize: 19 }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
+        </View>
+        <TouchableOpacity
+          style={{ width: "100%", maxWidth: "90%" }}
+          onLongPress={() => {
+            if (comment.userId === auth.currentUser.uid) {
+              setModalVisibility(true);
+            }
+          }}
+        >
           <View style={{ flexDirection: "row", maxWidth: 280 }}>
             <Text style={{ fontSize: 16, fontWeight: "bold", flexGrow: 1 }}>
               {comment.username}
@@ -402,6 +472,7 @@ const Comment = ({ comment, item, reply, setReply, fun, postId }) => {
               </Text>
             </TouchableOpacity>
           </View>
+
           {replies?.length != 0 && (
             <View style={{ marginTop: 15 }}>
               {!showReplies && (
@@ -420,97 +491,12 @@ const Comment = ({ comment, item, reply, setReply, fun, postId }) => {
               )}
               {showReplies &&
                 replies?.map((reply, index) => (
-                  <View
-                    style={{
-                      paddingVertical: 10,
-                      flexDirection: "row",
-                      maxWidth: "80%",
-                      paddingHorizontal: 12,
-                    }}
-                    key={index}
-                  >
-                    <View style={{}}>
-                      <Image
-                        source={require("../../assets/avatar.jpg")}
-                        style={{
-                          height: 35,
-                          width: 35,
-                          marginRight: 15,
-                          borderRadius: 18.5,
-                        }}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        width: "100%",
-                        maxWidth: "90%",
-                        flexGrow: 1,
-                        marginRight: 20,
-                      }}
-                    >
-                      <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                        {reply.username}
-                        <Text style={{ fontWeight: "100", fontSize: 15 }}>
-                          {" "}
-                          {reply.comment}
-                        </Text>
-                      </Text>
-                      <View style={{ marginTop: 5, flexDirection: "row" }}>
-                        <TouchableOpacity>
-                          <Text
-                            style={{
-                              color: "grey",
-                              fontSize: 14,
-                              fontWeight: "bold",
-                              marginRight: 15,
-                            }}
-                          >
-                            {reply.likes.length} likes
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                          <Text
-                            style={{
-                              color: "grey",
-                              fontWeight: "bold",
-                              fontSize: 14,
-                            }}
-                          >
-                            Reply
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-
-                    <TouchableOpacity
-                      style={{ alignSelf: "center", marginBottom: 15 }}
-                      onPress={() => {
-                        {
-                          isReplyLiked(reply.replyId).then((res) => {
-                            if (res) {
-                              dislikeReplyLike(reply.replyId);
-                              setReplyLiked(false);
-                            } else {
-                              likeReply(reply.replyId);
-                              setReplyLiked(true);
-                            }
-                          });
-                        }
-                      }}
-                    >
-                      {isReplyLiked(reply.replyId) ? (
-                        <Image
-                          source={require("../../assets/liked.png")}
-                          style={{ height: 20, width: 20 }}
-                        />
-                      ) : (
-                        <Image
-                          source={require("../../assets/like.png")}
-                          style={{ height: 20, width: 20 }}
-                        />
-                      )}
-                    </TouchableOpacity>
-                  </View>
+                  <Reply
+                    reply={reply}
+                    index={index}
+                    comment={comment}
+                    postId={postId}
+                  />
                 ))}
               {showReplies && (
                 <TouchableOpacity
@@ -532,7 +518,7 @@ const Comment = ({ comment, item, reply, setReply, fun, postId }) => {
               )}
             </View>
           )}
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
