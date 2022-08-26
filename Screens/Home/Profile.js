@@ -17,6 +17,8 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
+  orderBy,
+  query,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase/firebaseConfig";
 import { signOut } from "firebase/auth";
@@ -92,7 +94,10 @@ const Profile = ({ navigation }) => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      collection(db, "users", user, "posts"),
+      query(
+        collection(db, "users", user, "posts"),
+        orderBy("timestamp", "desc")
+      ),
       (snapshot) => {
         let Posts = [];
 
@@ -240,7 +245,7 @@ const Profile = ({ navigation }) => {
             }}
             H
           >
-            <Text style={{ fontSize: 16 }}>{userInfo.bio}</Text>
+            <Text style={{ fontSize: 16 }}>{userInfo?.bio}</Text>
           </View>
           {user === auth.currentUser.uid && (
             <View style={{ marginTop: 20 }}>

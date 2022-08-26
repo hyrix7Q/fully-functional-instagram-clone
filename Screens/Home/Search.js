@@ -70,13 +70,18 @@ const Search = ({ navigation }) => {
   return (
     <ScrollView style={{ marginTop: "5%" }}>
       <View
-        style={{ marginTop: 10, flexDirection: "row", alignItems: "center" }}
+        style={{
+          marginTop: 10,
+          flexDirection: "row",
+          alignItems: "center",
+          width: "100%",
+        }}
       >
         <View
           style={{
             backgroundColor: "#DDDDDD",
             marginLeft: 20,
-            width: 310,
+            width: "75%",
             paddingHorizontal: 10,
             paddingVertical: 5,
             borderRadius: 10,
@@ -100,7 +105,7 @@ const Search = ({ navigation }) => {
           />
         </View>
         <TouchableOpacity
-          style={{ marginLeft: 10 }}
+          style={{ marginLeft: 10, width: "25%" }}
           onPress={() => {
             setUserFound();
             setInputValue("");
@@ -128,7 +133,7 @@ const Search = ({ navigation }) => {
               }}
             >
               <Image
-                source={require("../../assets/avatar.jpg")}
+                source={{ uri: user.profilePic }}
                 style={{
                   height: 60,
                   width: 60,

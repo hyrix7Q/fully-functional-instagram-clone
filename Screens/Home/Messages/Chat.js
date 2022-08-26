@@ -729,6 +729,7 @@ const Chat = ({ route, navigation }) => {
                 onSubmitEditing={() => {
                   sendMessage();
                 }}
+                value={message}
               />
             </View>
             {message === "" ? (

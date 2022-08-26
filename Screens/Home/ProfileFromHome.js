@@ -354,7 +354,7 @@ const ProfileFromHome = ({ navigation, route }) => {
                 style={{
                   backgroundColor: isRequested ? "white" : "#19A5FF",
                   paddingHorizontal:
-                    !isFollowed && userInfo?.private ? 150 : 45,
+                    !isFollowed && userInfo?.private ? 120 : 45,
                   paddingVertical: 5,
                   borderRadius: 5,
                   borderWidth: isRequested ? 0.4 : 0,

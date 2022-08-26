@@ -31,7 +31,7 @@ const AddPost = ({ navigation }) => {
   const takeImageHandler = async () => {
     const imageRes = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
-      aspect: [16, 9],
+      aspect: [9, 16],
       quality: 0.5,
     });
 
@@ -45,7 +45,7 @@ const AddPost = ({ navigation }) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [9, 16],
       quality: 1,
     });
 

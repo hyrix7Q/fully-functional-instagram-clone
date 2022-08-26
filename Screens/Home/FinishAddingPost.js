@@ -7,6 +7,7 @@ import {
   ScrollView,
   Switch,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
@@ -22,9 +23,11 @@ const FinishAddingPost = ({ navigation, route }) => {
   const [twitter, setTwitter] = useState(false);
   const [tumblr, setTumblr] = useState(false);
   const [caption, setCaption] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const imageRef = ref(storage, `${auth.currentUser.uid}/posts/${idGenerated}`);
 
   const postIMG = async () => {
+    setIsLoading(true);
     const img = await fetch(imagePicked);
     const bytes = await img.blob();
 
@@ -58,6 +61,7 @@ const FinishAddingPost = ({ navigation, route }) => {
           });
         })
         .then(() => {
+          setIsLoading(false);
           navigation.navigate("Home1");
         });
     });
@@ -90,9 +94,15 @@ const FinishAddingPost = ({ navigation, route }) => {
           New post
         </Text>
         <TouchableOpacity onPress={postIMG}>
-          <Text style={{ color: "#64A6FF", fontSize: 18, fontWeight: "bold" }}>
-            Share
-          </Text>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#64A6FF" />
+          ) : (
+            <Text
+              style={{ color: "#64A6FF", fontSize: 18, fontWeight: "bold" }}
+            >
+              Share
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
       <View

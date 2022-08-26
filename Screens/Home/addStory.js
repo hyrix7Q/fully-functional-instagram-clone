@@ -5,6 +5,7 @@ import {
   Button,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
@@ -22,6 +23,7 @@ import uuid from "react-native-uuid";
 
 const AddStory = ({ navigation }) => {
   const [imagePicked, setImagePicked] = useState();
+  const [isLoading, setIsLoading] = useState();
   const idGenerated = uuid.v4();
 
   const takeImageHandler = async () => {
@@ -53,6 +55,7 @@ const AddStory = ({ navigation }) => {
   };
 
   const shareStory = async () => {
+    setIsLoading(true);
     const img = await fetch(imagePicked);
     const bytes = await img.blob();
     setDoc(doc(db, "users", auth.currentUser.uid, "stories", idGenerated), {
@@ -89,6 +92,7 @@ const AddStory = ({ navigation }) => {
         })
 
         .then(() => {
+          setIsLoading(false);
           navigation.goBack();
         });
     });
@@ -124,9 +128,15 @@ const AddStory = ({ navigation }) => {
           New Story
         </Text>
         <TouchableOpacity disabled={!imagePicked} onPress={shareStory}>
-          <Text style={{ color: "#64A6FF", fontSize: 18, fontWeight: "bold" }}>
-            Next
-          </Text>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#64A6FF" />
+          ) : (
+            <Text
+              style={{ color: "#64A6FF", fontSize: 18, fontWeight: "bold" }}
+            >
+              Next
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
       {!imagePicked ? (

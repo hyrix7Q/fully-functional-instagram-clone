@@ -181,8 +181,7 @@ const Comments = ({ route, navigation }) => {
             {item.user}
             <Text style={{ fontWeight: "100", fontSize: 15 }}>
               {" "}
-              dreqsfd khqsfojs hqgjfhqs dbjfhbdsjj jjjjjjjjfssss sss fds
-              kfkdsnfks dnfsdk nfsdkfd skfn sdknkkk
+              {item.caption}
             </Text>
           </Text>
         </View>

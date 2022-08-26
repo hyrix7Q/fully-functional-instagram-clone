@@ -176,13 +176,18 @@ const Messages = ({ navigation }) => {
       )}
       <ScrollView>
         <View
-          style={{ marginTop: 20, flexDirection: "row", alignItems: "center" }}
+          style={{
+            marginTop: 20,
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
+          }}
         >
           <View
             style={{
               backgroundColor: "#DDDDDD",
               marginLeft: 20,
-              width: 310,
+              width: "75%",
               paddingHorizontal: 10,
               paddingVertical: 5,
               borderRadius: 10,
@@ -206,7 +211,7 @@ const Messages = ({ navigation }) => {
             />
           </View>
           <TouchableOpacity
-            style={{ marginLeft: 10 }}
+            style={{ marginLeft: 10, width: "25%" }}
             onPress={() => {
               setOnSearch(false);
             }}
