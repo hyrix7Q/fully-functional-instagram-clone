@@ -1,11 +1,4 @@
 # fully-functional-instagram-clone
-DONE !
-![MacBook Pro 14_ - 4](https://user-images.githubusercontent.com/72894430/186920016-0838642d-cfbc-40c1-9fed-dd7236b8640c.png)
-![MacBook Pro 14_ - 5](https://user-images.githubusercontent.com/72894430/186920118-9994235e-c134-4a0b-972c-ec1833ff461d.png)
-![MacBook Pro 14_ - 1](https://user-images.githubusercontent.com/72894430/186920154-04d9e8f2-e8dd-4c2b-8730-78a14acc08de.png)
-![MacBook Pro 14_ - 2](https://user-images.githubusercontent.com/72894430/186920316-8eb3b049-bca9-47ee-b5c3-6da4c7014477.png)
-![MacBook Pro 14_ - 3](https://user-images.githubusercontent.com/72894430/186920394-2c6e1366-906c-4063-8641-ff3edf628759.png)
-
 DESCRIPTION : 
 🚀Hey everyone!!
 🔥Excited to share my instagram Clone !
@@ -49,3 +42,12 @@ DESCRIPTION :
 -REACT NATIVE / FIREBASE / REDUX / REDUX THUNK / REACT NAVIGATION / tailwind and more
 
 *In order to get the code and run you have to create your own firebase config*
+
+DONE !
+![MacBook Pro 14_ - 4](https://user-images.githubusercontent.com/72894430/186920016-0838642d-cfbc-40c1-9fed-dd7236b8640c.png)
+![MacBook Pro 14_ - 5](https://user-images.githubusercontent.com/72894430/186920118-9994235e-c134-4a0b-972c-ec1833ff461d.png)
+![MacBook Pro 14_ - 1](https://user-images.githubusercontent.com/72894430/186920154-04d9e8f2-e8dd-4c2b-8730-78a14acc08de.png)
+![MacBook Pro 14_ - 2](https://user-images.githubusercontent.com/72894430/186920316-8eb3b049-bca9-47ee-b5c3-6da4c7014477.png)
+![MacBook Pro 14_ - 3](https://user-images.githubusercontent.com/72894430/186920394-2c6e1366-906c-4063-8641-ff3edf628759.png)
+
+
